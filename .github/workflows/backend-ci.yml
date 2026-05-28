@@ -1,0 +1,23 @@
+name: Backend CI
+on:
+  push:
+    branches: [main, dev]
+    paths: ['backend/**']
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: econtinuity_test
+          POSTGRES_USER: econtinuity
+          POSTGRES_PASSWORD: econtinuity_secret
+        ports: ['5432:5432']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: cd backend && npm ci
+      - run: cd backend && npx prisma generate
+      - run: cd backend && npm test

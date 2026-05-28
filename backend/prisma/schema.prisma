@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  password     String
+  firstName    String
+  lastName     String
+  publicKey    String?  // Libsodium public key pour chiffrement E2E
+  createdAt    DateTime @default(now())
+  devices      Device[]
+  clipboardItems ClipboardItem[]
+  killSwitchCommands KillSwitchCommand[]
+}
+
+model Device {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  name             String
+  type             String   // mobile | desktop_windows | desktop_macos | tablet
+  platform         String   // android | ios | windows | macos
+  deviceToken      String   @unique
+  lastSeen         DateTime @default(now())
+  isOnline         Boolean  @default(false)
+  publicKey        String?  // Clé publique de l'appareil pour chiffrement E2E
+  createdAt        DateTime @default(now())
+  killSwitchStatus String   @default("active") // active | locked | wiped
+}
+
+model ClipboardItem {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  content      String   // chiffré AES-256
+  contentType  String   // text | url | image_url
+  sourceDevice String?
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime // TTL 24h
+}
+
+model SyncConfig {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  syncedPaths   Json     // ["~/Documents", "~/Desktop"]
+  backupEnabled Boolean  @default(true)
+  lastSync      DateTime?
+  createdAt     DateTime @default(now())
+}
+
+model KillSwitchCommand {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+  targetDeviceId String
+  action         String    // lock | wipe
+  status         String    @default("pending") // pending | executed | failed
+  issuedAt       DateTime  @default(now())
+  executedAt     DateTime?
+}
