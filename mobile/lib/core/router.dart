@@ -9,6 +9,7 @@ import '../features/clipboard/clipboard_screen.dart';
 import '../features/sync/sync_screen.dart';
 import '../features/killswitch/killswitch_screen.dart';
 import '../features/devices/devices_screen.dart';
+import 'l10n/language_provider.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -64,15 +65,15 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
-class MainShell extends StatefulWidget {
+class MainShell extends ConsumerStatefulWidget {
   final Widget child;
   const MainShell({super.key, required this.child});
 
   @override
-  State<MainShell> createState() => _MainShellState();
+  ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell> {
+class _MainShellState extends ConsumerState<MainShell> {
   int _selectedIndex = 0;
 
   static const _routes = [
@@ -85,6 +86,7 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final s = ref.watch(translationsProvider);
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: NavigationBar(
@@ -93,31 +95,31 @@ class _MainShellState extends State<MainShell> {
           setState(() => _selectedIndex = index);
           context.go(_routes[index]);
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: 'Tableau de bord',
+            icon: const Icon(Icons.dashboard_outlined),
+            selectedIcon: const Icon(Icons.dashboard),
+            label: s.navDashboard,
           ),
           NavigationDestination(
-            icon: Icon(Icons.folder_outlined),
-            selectedIcon: Icon(Icons.folder),
-            label: 'Explorateur',
+            icon: const Icon(Icons.folder_outlined),
+            selectedIcon: const Icon(Icons.folder),
+            label: s.navExplorer,
           ),
           NavigationDestination(
-            icon: Icon(Icons.content_paste_outlined),
-            selectedIcon: Icon(Icons.content_paste),
-            label: 'Presse-papier',
+            icon: const Icon(Icons.content_paste_outlined),
+            selectedIcon: const Icon(Icons.content_paste),
+            label: s.navClipboard,
           ),
           NavigationDestination(
-            icon: Icon(Icons.sync_outlined),
-            selectedIcon: Icon(Icons.sync),
-            label: 'Sync',
+            icon: const Icon(Icons.sync_outlined),
+            selectedIcon: const Icon(Icons.sync),
+            label: s.navSync,
           ),
           NavigationDestination(
-            icon: Icon(Icons.security_outlined),
-            selectedIcon: Icon(Icons.security),
-            label: 'Kill Switch',
+            icon: const Icon(Icons.security_outlined),
+            selectedIcon: const Icon(Icons.security),
+            label: s.navKillSwitch,
           ),
         ],
       ),
